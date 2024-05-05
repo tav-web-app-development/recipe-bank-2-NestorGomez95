@@ -1,46 +1,43 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
-import RecipeContainer from "./Components/RecipeContainer";
+import AddRecipeForm from "./Components/addrecipeform";
+import Home from "./Components/home";
 import "./App.css";
 import "./assets/style.css";
 
 function App() {
-    const [recipes, setRecipes] = useState([]);
+  const [recipes, setRecipes] = useState([]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const response = await fetch("https://api.sampleapis.com/recipes/recipes");
-            const data = await response.json();
-            setRecipes(data);
-        };
-        fetchData();
-    }, []);
+  useEffect(() => {
+    fetch("https://api.sampleapis.com/recipes/recipes")
+      .then((res) => res.json())
+      .then((data) => setRecipes(data))
+      .catch((error) => console.error("Error fetching recipes:", error));
+  }, []);
 
-    const deleteRecipe = (id) => {
-        setRecipes(recipes.filter(recipe => recipe.id !== id));
-    };
+  const handleAddRecipe = (newRecipe) => {
+    setRecipes([...recipes, newRecipe]);
+  };
 
-    const updateRecipe = (id, updatedRecipe) => {
-        setRecipes(recipes.map(recipe => recipe.id === id ? updatedRecipe : recipe));
-    };
-
-    return (
-        <>
-            <Navbar />
-            <div>
-                {recipes.map((recipe) => (
-                    <RecipeContainer
-                        key={recipe.id}
-                        recipe={recipe}
-                        onDelete={deleteRecipe}
-                        onUpdate={updateRecipe}
-                    />
-                ))}
-            </div>
-            <Footer />
-        </>
-    );
+  return (
+    <Router>
+      <div>
+        <Navbar />
+        <Routes>
+          <Route exact path="/" element={<Home recipes={recipes} />} />
+          <Route
+            path="/add-recipe"
+            element={<AddRecipeForm onAddRecipe={handleAddRecipe} />}
+          />
+          {}
+        </Routes>
+        <Footer />
+      </div>
+    </Router>
+  );
 }
+
 
 export default App;
